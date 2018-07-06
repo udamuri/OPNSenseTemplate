@@ -23,11 +23,11 @@
 
     <div class="container">
       <!-- User option 1: login needed with name and password -->
-      <div id="login_password" class="form-signin hidden_i">
+      <div id="login_password" class="form-signin hidden">
         <form>
           <h2 class="form-signin-heading">Please sign in</h2>
           <!-- Message dialog -->
-          <div class="alert alert-warning alert-dismissible hidden_i m-bottom-10" id="alertMSG">
+          <div class="alert alert-warning alert-dismissible hidden m-bottom-10" id="alertMSG">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             <span id="errorMSGtext"></span>
           </div>
@@ -40,13 +40,13 @@
       </div>
 
       <!-- User option 2: login needed, without username, password -->
-      <div id="login_none" class="form-signin hidden_i">
+      <div id="login_none" class="form-signin hidden">
           <form>
               <button class="btn btn-lg btn-primary btn-block" id="signin_anon" type="button">Sign in</button>
           </form>
         </div>
         <!-- User option 3: Already logged in, show logout button -->
-        <div id="logout_frm" class="form-signin hidden_i">
+        <div id="logout_frm" class="form-signin hidden">
           <form>
               <button class="btn btn-lg btn-primary btn-block" id="logoff" type="button">Logout</button>
           </form>
@@ -80,7 +80,7 @@
           $("#signin").click(function (event) {
               event.preventDefault();
               // hide alerts
-              $("#alertMSG").addClass("hidden_i");
+              $("#alertMSG").addClass("hidden");
               // try to login
               $.ajax({
                   type: "POST",
@@ -100,11 +100,11 @@
                       $("#inputUsername").val("");
                       $("#inputPassword").val("");
                       $("#errorMSGtext").html("authentication failed");
-                      $("#alertMSG").removeClass("hidden_i");
+                      $("#alertMSG").removeClass("hidden");
                   }
               }).fail(function(){
                   $("#errorMSGtext").html("unable to connect to authentication server");
-                  $("#alertMSG").removeClass("hidden_i");
+                  $("#alertMSG").removeClass("hidden");
               });
           });
 
@@ -114,7 +114,7 @@
           $("#signin_anon").click(function (event) {
               event.preventDefault();
               // hide alerts
-              $("#alertMSG").addClass("hidden_i");
+              $("#alertMSG").addClass("hidden");
               // try to login
               $.ajax({
                   type: "POST",
@@ -133,11 +133,11 @@
                       $("#inputUsername").val("");
                       $("#inputPassword").val("");
                       $("#errorMSGtext").html("login failed");
-                      $("#alertMSG").removeClass("hidden_i");
+                      $("#alertMSG").removeClass("hidden");
                   }
               }).fail(function(){
                   $("#errorMSGtext").html("unable to connect to authentication server");
-                  $("#alertMSG").removeClass("hidden_i");
+                  $("#alertMSG").removeClass("hidden");
               });
           });
 
@@ -147,7 +147,7 @@
           $("#logoff").click(function (event) {
               event.preventDefault();
               // hide alerts
-              $("#alertMSG").addClass("hidden_i");
+              $("#alertMSG").addClass("hidden");
               // try to login
               $.ajax({
                   type: "POST",
@@ -159,7 +159,7 @@
                   window.location.reload();
               }).fail(function(){
                   $("#errorMSGtext").html("unable to connect to authentication server");
-                  $("#alertMSG").removeClass("hidden_i");
+                  $("#alertMSG").removeClass("hidden");
               });
           });
 
@@ -167,7 +167,7 @@
            * close / hide error message
            */
           $("#btnCloseError").click(function(){
-              $("#alertMSG").addClass("hidden_i");
+              $("#alertMSG").addClass("hidden");
           });
 
           /**
@@ -180,15 +180,15 @@
                data:{ user: $("#inputUsername").val(), password: $("#inputPassword").val() }
            }).done(function(data) {
               if (data['clientState'] == 'AUTHORIZED') {
-                $("#logout_frm").removeClass('hidden_i');
+                $("#logout_frm").removeClass('hidden');
               } else if (data['authType'] == 'none') {
-                  $("#login_none").removeClass('hidden_i');
+                  $("#login_none").removeClass('hidden');
               } else {
-                  $("#login_password").removeClass('hidden_i');
+                  $("#login_password").removeClass('hidden');
               }
            }).fail(function(){
                $("#errorMSGtext").html("unable to connect to authentication server");
-               $("#alertMSG").removeClass("hidden_i");
+               $("#alertMSG").removeClass("hidden");
            });
 
       });
