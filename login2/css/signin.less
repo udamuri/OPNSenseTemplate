@@ -10,6 +10,10 @@ body {
   background-size: cover;
 }
 
+.m-bottom-10 {
+  margin-bottom: 10px;
+}
+
 .border-radius(@radius) {
   -webkit-border-radius: @radius;
   -moz-border-radius: @radius;
@@ -21,7 +25,7 @@ body {
   padding: 15px;
   margin: 0 auto;
   background-color: rgba(0,0,0, 0.5);
-  .border-radius(0.3em);
+  .border-radius(0.4em);
 }
 .form-signin .form-signin-heading,
 .form-signin .checkbox {
@@ -45,11 +49,15 @@ body {
 }
 .form-signin input[type="text"] {
   margin-bottom: -1px;
+  color: @white;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
+  background-color: rgba(0,0,0, 0.5);
 }
 .form-signin input[type="password"] {
   margin-bottom: 10px;
+  color: @white;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  background-color: rgba(0,0,0, 0.5);
 }

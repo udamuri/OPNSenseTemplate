@@ -22,22 +22,177 @@
   <body>
 
     <div class="container">
-      <div class="form-signin">
+      <!-- User option 1: login needed with name and password -->
+      <div id="login_password" class="form-signin hidden_i">
         <form>
           <h2 class="form-signin-heading">Please sign in</h2>
-          <label for="inputEmail" class="sr-only">Username</label>
-          <input type="text" id="inputEmail" class="form-control" placeholder="Username" required autofocus>
+          <!-- Message dialog -->
+          <div class="alert alert-warning alert-dismissible hidden_i m-bottom-10" id="alertMSG">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            <span id="errorMSGtext"></span>
+          </div>
+          <label for="inputUsername" class="sr-only">Username</label>
+          <input type="text" id="inputUsername" class="form-control" placeholder="Username" required autofocus autocomplete="none" autocapitalize="none" autocorrect="off">
           <label for="inputPassword" class="sr-only">Password</label>
-          <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
-          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+          <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+          <button class="btn btn-lg btn-primary btn-block" id="signin" type="button">Sign in</button>
         </form>
       </div>
+
+      <!-- User option 2: login needed, without username, password -->
+      <div id="login_none" class="form-signin hidden_i">
+          <form>
+              <button class="btn btn-lg btn-primary btn-block" id="signin_anon" type="button">Sign in</button>
+          </form>
+        </div>
+        <!-- User option 3: Already logged in, show logout button -->
+        <div id="logout_frm" class="form-signin hidden_i">
+          <form>
+              <button class="btn btn-lg btn-primary btn-block" id="logoff" type="button">Logout</button>
+          </form>
+        </div>
+
     </div> <!-- /container -->
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
+
+    <script>
+      function getURLparams()
+      {
+          var vars = [], hash;
+          var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+          for(var i = 0; i < hashes.length; i++)
+          {
+              hash = hashes[i].split('=');
+              vars.push(hash[0]);
+              vars[hash[0]] = hash[1];
+          }
+          return vars;
+      }
+
+      $( document ).ready(function() {
+          /**
+           * logon action
+           */
+          $("#signin").click(function (event) {
+              event.preventDefault();
+              // hide alerts
+              $("#alertMSG").addClass("hidden_i");
+              // try to login
+              $.ajax({
+                  type: "POST",
+                  url: "/api/captiveportal/access/logon/" + zoneid + "/",
+                  dataType:"json",
+                  data:{ user: $("#inputUsername").val(), password: $("#inputPassword").val() }
+              }).done(function(data) {
+                  // redirect on successful login
+                  if (data['clientState'] == 'AUTHORIZED') {
+                      if (getURLparams()['redirurl'] != undefined) {
+                          window.location = 'http://'+getURLparams()['redirurl']+'?refresh';
+                      } else {
+                          // no target, reload page
+                          window.location.reload();
+                      }
+                  } else {
+                      $("#inputUsername").val("");
+                      $("#inputPassword").val("");
+                      $("#errorMSGtext").html("authentication failed");
+                      $("#alertMSG").removeClass("hidden_i");
+                  }
+              }).fail(function(){
+                  $("#errorMSGtext").html("unable to connect to authentication server");
+                  $("#alertMSG").removeClass("hidden_i");
+              });
+          });
+
+          /**
+           * login anonymous, only applicable when server is configured without authentication
+           */
+          $("#signin_anon").click(function (event) {
+              event.preventDefault();
+              // hide alerts
+              $("#alertMSG").addClass("hidden_i");
+              // try to login
+              $.ajax({
+                  type: "POST",
+                  url: "/api/captiveportal/access/logon/" + zoneid + "/",
+                  dataType:"json",
+                  data:{ user: '', password: '' }
+              }).done(function(data) {
+                  // redirect on successful login
+                  if (data['clientState'] == 'AUTHORIZED') {
+                      if (getURLparams()['redirurl'] != undefined) {
+                          window.location = 'http://'+getURLparams()['redirurl']+'?refresh';
+                      } else {
+                          window.location.reload();
+                      }
+                  } else {
+                      $("#inputUsername").val("");
+                      $("#inputPassword").val("");
+                      $("#errorMSGtext").html("login failed");
+                      $("#alertMSG").removeClass("hidden_i");
+                  }
+              }).fail(function(){
+                  $("#errorMSGtext").html("unable to connect to authentication server");
+                  $("#alertMSG").removeClass("hidden_i");
+              });
+          });
+
+          /**
+           * logoff action
+           */
+          $("#logoff").click(function (event) {
+              event.preventDefault();
+              // hide alerts
+              $("#alertMSG").addClass("hidden_i");
+              // try to login
+              $.ajax({
+                  type: "POST",
+                  url: "/api/captiveportal/access/logoff/" + zoneid + "/",
+                  dataType:"json",
+                  data:{ user: '', password: '' }
+              }).done(function(data) {
+                  // refresh page
+                  window.location.reload();
+              }).fail(function(){
+                  $("#errorMSGtext").html("unable to connect to authentication server");
+                  $("#alertMSG").removeClass("hidden_i");
+              });
+          });
+
+          /**
+           * close / hide error message
+           */
+          $("#btnCloseError").click(function(){
+              $("#alertMSG").addClass("hidden_i");
+          });
+
+          /**
+           * execute after pageload
+           */
+           $.ajax({
+               type: "POST",
+               url: "/api/captiveportal/access/status/" + zoneid + "/",
+               dataType:"json",
+               data:{ user: $("#inputUsername").val(), password: $("#inputPassword").val() }
+           }).done(function(data) {
+              if (data['clientState'] == 'AUTHORIZED') {
+                $("#logout_frm").removeClass('hidden_i');
+              } else if (data['authType'] == 'none') {
+                  $("#login_none").removeClass('hidden_i');
+              } else {
+                  $("#login_password").removeClass('hidden_i');
+              }
+           }).fail(function(){
+               $("#errorMSGtext").html("unable to connect to authentication server");
+               $("#alertMSG").removeClass("hidden_i");
+           });
+
+      });
+  </script>
 
   </body>
 </html>
